@@ -1,6 +1,7 @@
 import express, {Request, Response} from 'express';
 import request from 'request';
-import { Logger, IPluginMiddleware, IBasicAuth, IStorageManager, PluginOptions, Plugin } from '@verdaccio/types';
+import { Logger, IPluginMiddleware, IBasicAuth, IStorageManager, PluginOptions } from '@verdaccio/types';
+import { Plugin } from './types';
 
 export type ConfigAudit = {
   enabled: boolean
