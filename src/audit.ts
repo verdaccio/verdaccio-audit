@@ -19,7 +19,7 @@ export default class ProxyAudit extends Plugin<ConfigAudit> implements IPluginMi
   }
 
   register_middlewares(app: any, auth: IBasicAuth<ConfigAudit>, storage: IStorageManager<ConfigAudit>) {
-    const fetchAudit = (req: Request, res: Response) => {
+    const fetchAudit = (req: Request, res: Response & { report_error?: Function }) => {
       const headers = req.headers;
       headers.host = 'https://registry.npmjs.org/';
 
@@ -31,7 +31,14 @@ export default class ProxyAudit extends Plugin<ConfigAudit> implements IPluginMi
         strictSSL: true
       };
 
-      req.pipe(request(requestOptions)).pipe(res);
+      req.pipe(request(requestOptions))
+        .on('error', err => {
+          if (typeof res.report_error === 'function')
+            return res.report_error(err);
+          this.logger.error(err);
+          return res.status(500).end();
+        })
+        .pipe(res);
     };
 
     const handleAudit = (req: Request, res: Response) => {
